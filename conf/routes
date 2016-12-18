@@ -1,0 +1,10 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+PUT  /api/v1/newGame                                 controllers.AsyncController.newGame(name:String,boardsize:Int)
+PUT  /api/v1/game/:gameId/players                    controllers.AsyncController.addPlayers(gameId:String)
+POST /api/v1/game/:gameId/start                      controllers.AsyncController.startGame(gameId:String)
+GET  /api/v1/game/:gameId/status                     controllers.AsyncController.gameStatus(gameId:String)
+GET  /api/v1/game/:gameId/player/:playerId/boards    controllers.AsyncController.getPlayerBoards(gameId:String,playerId:String)
+POST /api/v1/game/:gameId/shoot                     controllers.AsyncController.shoot(gameId)
