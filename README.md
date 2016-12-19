@@ -1,8 +1,8 @@
 #BattleField game, backend support
-#====================================
+====================================
 
 ##Overview
-##=======================================
+=======================================
 This project implements a simple Battlefield server.
 The service provides API to create an play Battlefields games. It is missing a front end implementation.
 
@@ -30,7 +30,7 @@ the service for getting an update on the status of the boards, and the status of
 
 
 ##Technology
-##=======================================
+=======================================
 The service is implemented using the Play! framework with Scala.
 To build the service:
 *sbt compile*
@@ -40,4 +40,4 @@ To create a distributable:
 
 
 ##API
-##=====================================
+=====================================
