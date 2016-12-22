@@ -18,7 +18,7 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
   def newGame (name: String, boardsize:Int)= Action.async (parse.json) {
     request=> {
       val bodyStr = request.body.toString()
-      val initialSetup = Json.parse[Map[String,List[BattleShip]]] (bodyStr)
+      val initialSetup = Json.parse[GameSetup] (bodyStr)
 
       val newgame=gameManager.newGame(name,boardsize,initialSetup)
 

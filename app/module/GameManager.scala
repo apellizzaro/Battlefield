@@ -22,12 +22,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
       case Left(s) => Left(s)
       case Right(g) =>
         val players = playerManager.setupOpponentsBoards(g.players,g.boardSize)
-        val newGame = Game (g.gameId,g.gameName,g.boardSize,players,GameInProgress)
+        val newGame = Game (g.gameId,g.gameName,g.boardSize,g.shipsConfiguration,players,GameInProgress)
         gameDataAccess.saveGame(newGame)
         Right(newGame)
     }
   }
-
 
   def shoot (gameId: String, point2D: Point2D): Future [String Either (Game,Map[String,ResultShooting])] = {
     retrieveGame(gameId).map {
@@ -42,7 +41,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     retrieveGame(gameId) map {
       case Left(s) => Left (s)
       case Right (g) =>
-        Right(GameStatusResponse(g.status.toString, g.players.map(_.name),g.players.find(_.ownBoard.stillAlive).map(_.name).getOrElse("")))
+        Right(GameStatusResponse(g.status.toString,g.shipsConfiguration, g.players.map(_.name),g.players.find(_.ownBoard.stillAlive).map(_.name).getOrElse("")))
     }
   }
 
@@ -57,11 +56,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     //check for winner => if in all player's board all battleship are hit
     val won = opponentsPlayers.forall( o => !o.ownBoard.stillAlive)
 
-    (Game(game.gameId,game.gameName,game.boardSize, (opponentsPlayers :+ player) ++ deadPlayers,if (won) GameEnded else game.status),
+    (Game(game.gameId,game.gameName,game.boardSize,game.shipsConfiguration, (opponentsPlayers :+ player) ++ deadPlayers,if (won) GameEnded else game.status),
       opponents.map(t=> (t._1.name,t._2)).toMap)
   }
 
-  def newGame (gameName: String, boardSize: Int, initialSetup: Map[String, List[BattleShip]]): Game = {
+  def newGame (gameName: String, boardSize: Int, initialSetup: GameSetup): Game = {
     val newGame = Game (gameName,boardSize,initialSetup)
     gameDataAccess.saveGame(newGame)
     newGame
@@ -100,7 +99,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
         Player(kv._1, curPlayerBattleField, opponentsBfs)
       }.toList
 
-      Game(game.gameId,game.gameName,game.boardSize,game.players ++ playersSetup, game.status)
+      Game(game.gameId,game.gameName,game.boardSize,game.shipsConfiguration, game.players ++ playersSetup, game.status)
 
     }
   }

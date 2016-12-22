@@ -14,12 +14,12 @@ class BattleFieldManger @Inject () () {
     val newGrid:Grid = Grid(Array.tabulate(boardSize, boardSize)((x, y) => {
       if (x != shot.x || y != shot.y)
         battleField.grid(x,y)
-      else if (battleField.grid(shot.x, shot.y) == EmptySea)
+      else if (battleField.grid(shot) == EmptySea)
         MissedShot
-      else if (battleField.grid(shot.x, shot.y) == BattleShipSafe)
+      else if (battleField.grid(shot) == BattleShipSafe)
         BattleShipHit
       else
-        battleField.grid(x, y)
+        battleField.grid(shot)
     }))
 
     //check if we lost:
@@ -41,7 +41,7 @@ class BattleFieldManger @Inject () () {
   def checkSunken (battleField:BattleField,point2D: Point2D):Boolean = {
 
     def visitPoint (p:Point2D, alreadyVisited:Seq[Point2D]): Option[(Point2D,SeaStatus)] = {
-      if (p.x >= 0 && p.y >= 0 && p.x < battleField.grid.g.length && p.y < battleField.grid.g.length && !alreadyVisited.contains(p)) {
+      if (p>=Point2D(0,0)  && p < Point2D (battleField.grid.g.length, battleField.grid.g.length) && !alreadyVisited.contains(p)) {
         Some((p, battleField.grid(p.x, p.y)))
       }
       else

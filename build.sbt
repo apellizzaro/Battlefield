@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
   "org.json4s" %% "json4s-jackson" % "3.3.0",
   "org.json4s" %% "json4s-ext" % "3.3.0"
+
 )
 
 

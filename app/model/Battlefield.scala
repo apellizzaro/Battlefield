@@ -7,53 +7,6 @@ import org.json4s.{CustomSerializer, DefaultFormats, Formats}
   * Created by anton on 12/16/2016.
   */
 
-sealed trait SeaStatus
-case object EmptySea extends SeaStatus
-case object MissedShot extends SeaStatus
-case object BattleShipSafe extends SeaStatus
-case object BattleShipHit extends SeaStatus
-
-case object SeaStatusSerializer extends CustomSerializer[SeaStatus](format => (
-  {
-    case JString(seastatus) =>  seastatus match {
-      case "EmptySea" => EmptySea
-      case "MissedShot" => MissedShot
-      case "BattleShipSafe" => BattleShipSafe
-      case "BattleShipHit" => BattleShipHit
-      case _ => EmptySea
-    }
-    case JNull => null
-  },
-  {
-    case seaStatus:SeaStatus => JString(seaStatus.getClass.getSimpleName.replace("$",""))
-  }))
-
-
-trait ResultShooting
-case object Hit extends ResultShooting
-case object Missed extends ResultShooting
-case object AlreadyTaken extends ResultShooting
-case object Sunk extends ResultShooting
-case object AllSunken extends ResultShooting
-
-object ResultShootingSerializer extends CustomSerializer[ResultShooting](format => (
-  {
-    case JString(resultShooting) =>  resultShooting match {
-      case "Hit" => Hit
-      case "Missed" => Missed
-      case "AlreadyTaken" => AlreadyTaken
-      case "Sunk" => Sunk
-      case _ => Missed
-    }
-    case JNull => null
-  },
-  {
-    case resultShooting:ResultShooting => JString(resultShooting.getClass.getSimpleName.replace("$",""))
-  }))
-
-case class Grid (g:Array[Array[SeaStatus]]) {
-  def apply (x:Int,y:Int):SeaStatus = g(x)(y)
-}
 
 case class playerBoardResult (ownBoard:BattleField, opponentsBoards: Map[String, BattleField])
 
