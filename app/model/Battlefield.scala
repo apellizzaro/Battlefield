@@ -14,6 +14,18 @@ case class BattleField (ships: Seq[BattleShip], grid:Grid) {
   def stillAlive:Boolean = grid.g.exists(_.contains(BattleShipSafe))
 }
 
+object BattleFieldWithValidation {
+  def apply (size: Int, ships: Seq[BattleShip]) : String Either BattleField = {
+    //check if ships are all inside
+    if (ships.exists(b => b.startPosition < Point2D(0,0) || b.endPosition<Point2D(0,0) ||
+        b.startPosition > Point2D(size,size) || b.endPosition>Point2D(size,size))) {
+      Left("All ships must be inside the playing board")
+    }
+    else {
+      Right (BattleField(size,ships))
+    }
+  }
+}
 
 object BattleField {
   def apply(size: Int, ships: Seq[BattleShip]): BattleField = {
@@ -21,7 +33,7 @@ object BattleField {
       ships.find(s => occupySpace(s,Point2D(x, y))).map(_ => BattleShipSafe).getOrElse(EmptySea)
     }))
 
-    new BattleField(ships, initialGrid)
+    BattleField(ships, initialGrid)
   }
 
   def occupySpace (s: BattleShip, p: Point2D): Boolean = {

@@ -20,9 +20,10 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
       val bodyStr = request.body.toString()
       val initialSetup = Json.parse[GameSetup] (bodyStr)
 
-      val newgame=gameManager.newGame(name,boardsize,initialSetup)
-
-      Future(Ok(newgame.gameId.toString))
+      gameManager.newGame(name,boardsize,initialSetup).map  {
+        case Right (g) => Ok(g.gameId)
+        case Left (e) => BadRequest (e)
+      }
     }
 
   }
@@ -30,6 +31,7 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
     request => {
       val bodyStr = request.body.toString()
       val initialSetup = Json.parse[Map[String, List[BattleShip]]](bodyStr)
+
       gameManager.addPlayers(gameId,initialSetup ).map {
         case Left(s) => NotFound(s)
         case Right(game) => Ok(game.gameId.toString)

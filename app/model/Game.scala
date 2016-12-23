@@ -15,28 +15,44 @@ case class GameSetup (shipsConfiguration: BattleshipConfiguration, playersSetup:
 case class Game (gameId:String, gameName:String, boardSize:Int, shipsConfiguration: BattleshipConfiguration, players: Seq[Player], status:GameStatus )
 
 object GameValidator {
-  def apply(boardsize:Int, shipsConfiguration: BattleshipConfiguration, setup: Map[String, List[BattleShip]]): String Either Boolean = {
+  def apply(gameName: String,boardsize:Int, setup: GameSetup): String Either Game = {
     //are there enough spaces?
-    val totalShipSpaces = shipsConfiguration.config.foldLeft(0)( (a,b)=>a + b.length*b.quantity)
+    val totalShipSpaces = setup.shipsConfiguration.config.foldLeft(0)((a, b) => a + b.length * b.quantity)
 
     //are the ships inside the grid?
-    val allInside = setup.values.forall(b=>b.forall(bb=>bb.startPosition >= Point2D(0,0) &&
-      bb.endPosition >= Point2D(0,0) &&
-      bb.startPosition < Point2D(boardsize,boardsize) &&
-      bb.endPosition < Point2D(boardsize,boardsize)))
+    val allInside = setup.playersSetup.values.forall(b => b.forall(bb => bb.startPosition >= Point2D(0, 0) &&
+      bb.endPosition >= Point2D(0, 0) &&
+      bb.startPosition < Point2D(boardsize, boardsize) &&
+      bb.endPosition < Point2D(boardsize, boardsize)))
 
     //we should verify that the ships do not intersect each other
-    //that's a bit moe complicated issue
+    //that's a bit more complicated issue
 
-    if (totalShipSpaces > boardsize*boardsize)
-      Left ("Not enough space on the board")
+    if (totalShipSpaces > boardsize * boardsize)
+      Left("Not enough space on the board")
     else if (boardsize <= 2)
-      Left ("Board not big enough")
+      Left("Board not big enough")
     else if (!allInside)
-      Left ("Ships must be all inside the board")
-    else
+      Left("Ships must be all inside the board")
+    else {
 
-    Right(true)
+      val playersSetup = setup.playersSetup.map { kv =>
+        BattleFieldWithValidation(boardsize, kv._2) match {
+          case Right(bf) => Right(Player(kv._1, bf, Map()))
+          case Left(e) => Left(e)
+        }
+      }.toList
+
+      if (playersSetup.exists(_.isLeft)) {
+        Left("error creating battlefield")
+      }
+      else {
+        val playerRightSetup = playersSetup.map {
+          case Right (ps)=> ps
+        }
+        Right(Game(java.util.UUID.randomUUID().toString, gameName,boardsize,setup.shipsConfiguration,playerRightSetup,GameSettingUp))
+      }
+    }
   }
 }
 
@@ -45,7 +61,7 @@ object  Game {
     val playersSetup = gameSetup.playersSetup.map { kv =>
       val curPlayerBattleField = BattleField(boardSize, kv._2)
       Player(kv._1, curPlayerBattleField, Map())
-    }.toList
+    }.toSeq
 
     Game(java.util.UUID.randomUUID().toString, gameName,boardSize, gameSetup.shipsConfiguration, playersSetup, GameSettingUp)
   }

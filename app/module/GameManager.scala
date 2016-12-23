@@ -60,10 +60,14 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
       opponents.map(t=> (t._1.name,t._2)).toMap)
   }
 
-  def newGame (gameName: String, boardSize: Int, initialSetup: GameSetup): Game = {
-    val newGame = Game (gameName,boardSize,initialSetup)
-    gameDataAccess.saveGame(newGame)
-    newGame
+  def newGame (gameName: String, boardSize: Int, initialSetup: GameSetup): Future [String Either Game] = {
+    GameValidator(gameName,boardSize,initialSetup) match {
+      case Right (g) => gameDataAccess.saveGame(g).map {
+        case true => Right(g)
+        case _ => Left ("error saving the game")
+      }
+      case Left(e) => Future(Left("Could not start game because: " + e))
+    }
   }
 
   def getNextPlayerTurn (gameId:String):Future[Option[Player]] = {
@@ -89,14 +93,13 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     }
   }
 
-  def addPlayers (game:Game, playerInitialSetup: Map[String,Seq[BattleShip]]): Game = {
+  private def addPlayers (game:Game, playerInitialSetup: Map[String,Seq[BattleShip]]): Game = {
     if (game.status != GameSettingUp)
       game
     else {
       val playersSetup = playerInitialSetup.map { kv =>
         val curPlayerBattleField = BattleField(game.boardSize, kv._2)
-        val opponentsBfs = playerInitialSetup.filter(p => p._1 != kv._1).mapValues(_ => BattleField(game.boardSize , List()))
-        Player(kv._1, curPlayerBattleField, opponentsBfs)
+        Player(kv._1, curPlayerBattleField, Map())
       }.toList
 
       Game(game.gameId,game.gameName,game.boardSize,game.shipsConfiguration, game.players ++ playersSetup, game.status)
