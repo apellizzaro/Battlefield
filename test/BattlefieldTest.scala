@@ -39,7 +39,24 @@ class BattlefieldTest extends PlaySpec {
       }
       newBf mustBe true
     }
-
   }
 
+  "A ship" must {
+    "occupy spaces" in {
+      val results =List (BattleField.occupySpace(BattleShip(Point2D(0,0),Point2D(5,5)),Point2D (2,2)),
+                BattleField.occupySpace(BattleShip(Point2D(2,2),Point2D(5,2)),Point2D (5,2)),
+                BattleField.occupySpace(BattleShip(Point2D(2,2),Point2D(5,2)),Point2D (2,2)),
+                BattleField.occupySpace(BattleShip(Point2D(2,2),Point2D(5,2)),Point2D (3,2)))
+      results.forall(p=>p) mustBe true
+    }
+
+    "Not occupy  spaces" in {
+      val results = List(BattleField.occupySpace(BattleShip(Point2D(2, 2), Point2D(5, 2)), Point2D(2, 3)),
+        BattleField.occupySpace(BattleShip(Point2D(2, 2), Point2D(5, 2)), Point2D(5, 1)),
+        BattleField.occupySpace(BattleShip(Point2D(0, 0), Point2D(5, 5)), Point2D(0, 1)),
+        BattleField.occupySpace(BattleShip(Point2D(0, 0), Point2D(5, 5)), Point2D(4, 5)))
+
+      results.forall(p => !p) mustBe true
+    }
+  }
 }
