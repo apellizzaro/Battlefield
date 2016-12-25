@@ -28,14 +28,27 @@ object GameValidator {
     //we should verify that the ships do not intersect each other
     //that's a bit more complicated issue
 
+    //verify that the ships in player configuration
+    //are matching the gameConfiguration
+    val setupConformsToSpec = setup.playersSetup.values.forall(lb=>{
+      //this is a Map of battleshipLeght -> How many are of those
+      //this needs to be equal to BattleshipConfiguration
+      val shipLengths = lb.groupBy(_.length).mapValues(_.length)
+      val configToMap = setup.shipsConfiguration.config.groupBy(_.length).mapValues(_.head.quantity)
+      val sameKeys = (shipLengths -- configToMap.keys).isEmpty && (configToMap -- shipLengths.keys).isEmpty
+      sameKeys && shipLengths.forall(kv => configToMap.get(kv._1).contains(kv._2))
+    })
+
+
     if (totalShipSpaces > boardsize * boardsize)
       Left("Not enough space on the board")
     else if (boardsize <= 2)
       Left("Board not big enough")
     else if (!allInside)
       Left("Ships must be all inside the board")
+    else if (!setupConformsToSpec)
+      Left("number and type of ships do not conform with game specification")
     else {
-
       val playersSetup = setup.playersSetup.map { kv =>
         BattleFieldWithValidation(boardsize, kv._2) match {
           case Right(bf) => Right(Player(kv._1, bf, Map()))

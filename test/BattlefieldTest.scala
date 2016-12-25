@@ -58,5 +58,16 @@ class BattlefieldTest extends PlaySpec {
 
       results.forall(p => !p) mustBe true
     }
+
+    "correct Length" in {
+      val ship1Length=BattleShip (Point2D(1,1),Point2D(5,5)).length
+      val ship2Length=BattleShip (Point2D(1,1),Point2D(6,1)).length
+      val ship3Length=BattleShip (Point2D(1,1),Point2D(1,6)).length
+
+      ship1Length mustBe 5
+      ship2Length mustBe 6
+      ship3Length mustBe 6
+
+    }
   }
 }
