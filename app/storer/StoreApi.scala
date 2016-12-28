@@ -13,4 +13,5 @@ import scala.concurrent.Future
 trait StoreApi {
   def saveObject(key:String,game:String): Future[Boolean]
   def retrieveObject(key: String): Future[Either[String,String]]
+  def getGameStats:Future[List[String]]
 }

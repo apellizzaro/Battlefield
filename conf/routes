@@ -8,3 +8,8 @@ POST /api/v1/game/:gameId/start                      controllers.AsyncController
 GET  /api/v1/game/:gameId/status                     controllers.AsyncController.gameStatus(gameId:String)
 GET  /api/v1/game/:gameId/player/:playerId/boards    controllers.AsyncController.getPlayerBoards(gameId:String,playerId:String)
 POST /api/v1/game/:gameId/shoot                     controllers.AsyncController.shoot(gameId)
+GET  /api/v1/gameStats                              controllers.AsyncController.gameStats
+
+GET /                                               controllers.UIController.mainPage
+GET /NewGame.html                                controllers.UIController.newGamePage
+GET /webApp/*file                                 controllers.Assets.at(path="/public/webApp", file)

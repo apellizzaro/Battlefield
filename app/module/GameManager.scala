@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * Created by anton on 12/16/2016.
   */
 
-class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDaoInterface) (implicit exec: ExecutionContext){
+class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDaoInterface) (implicit exec: ExecutionContext) extends PlayerValidator {
 
   type ResultGameOperation = Future[String Either Game]
 
@@ -43,6 +43,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
       case Right (g) =>
         Right(GameStatusResponse(g.status.toString,g.shipsConfiguration, g.players.map(_.name),g.players.find(_.ownBoard.stillAlive).map(_.name).getOrElse("")))
     }
+  }
+
+  def getGameStats : Future [GameStats] = {
+    gameDataAccess.getGameStats
+
   }
 
   def playTurn(game:Game, shot:Point2D): (Game, Map [String, ResultShooting]) = {
@@ -86,9 +91,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
       }
       case Right (g) if g.status != GameSettingUp => Left ("Game already in  progress")
       case Right(g) => {
-        val newGame = addPlayers(g, playerSetup)
-        gameDataAccess.saveGame(newGame)
-        Right(newGame)
+        validatePlayerSetup (g,playerSetup).map ( s=>Left(s)).getOrElse {
+          val newGame = addPlayers(g, playerSetup)
+          gameDataAccess.saveGame(newGame)
+          Right(newGame)
+        }
       }
     }
   }

@@ -25,8 +25,8 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
         case Left (e) => BadRequest (e)
       }
     }
-
   }
+
   def  addPlayers  (gameId:String) = Action.async (parse.json) {
     request => {
       val bodyStr = request.body.toString()
@@ -52,6 +52,13 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
         case Right(g) => Ok(g.gameId)
       }
     }
+  }
+
+  def gameStats  = Action.async {
+    gameManager.getGameStats.map {gs=>
+      Ok(Json.generate(gs))
+    }
+
   }
 
   def gameStatus  (gameId:String):Action[AnyContent] = Action.async {
