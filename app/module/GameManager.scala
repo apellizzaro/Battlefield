@@ -47,7 +47,17 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
 
   def getGameStats : Future [GameStats] = {
     gameDataAccess.getGameStats
+  }
 
+  def getGamesSummary : Future[String Either List[GameSummary]] = {
+    gameDataAccess.getGamesSummary.map {
+      case Right (gs) => Right(gs.map { g=> GameSummary(g.gameName,g.gameId,g.boardSize,g.status,g.players.length)})
+      case Left (e) => Left (e)
+    }
+  }
+
+  def getGame (gameId: String) : Future [String Either Game] = {
+    gameDataAccess.retrieveGame(gameId)
   }
 
   def playTurn(game:Game, shot:Point2D): (Game, Map [String, ResultShooting]) = {

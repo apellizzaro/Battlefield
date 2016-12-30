@@ -28,7 +28,7 @@ angular
       })
       .when('/joinGame', {
         templateUrl: 'webApp/views/joinGame.html',
-        controller: 'JoinGameCtrl'
+        controller: 'joinGameCtrl'
       })
       .when('/resumeGame', {
         templateUrl: 'webApp/views/resumeGame.html',
@@ -37,4 +37,4 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+  }).factory("currGame", function () { return {};});;

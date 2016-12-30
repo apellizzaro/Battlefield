@@ -26,4 +26,8 @@ class MemoryStore @Inject() (implicit exec: ExecutionContext) extends StoreApi {
     Future (gamesStore.filter( kv=>kv._2.contains("GameSettingUp") || kv._2.contains("GameInProgress")).values.toList)
   }
 
+  def getGamesSummary: Future[String Either List[String]] = {
+    Future (Right(gamesStore.filter( kv=>kv._2.contains("GameSettingUp") || kv._2.contains("GameInProgress")).values.toList))
+  }
+
 }

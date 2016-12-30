@@ -14,4 +14,5 @@ trait StoreApi {
   def saveObject(key:String,game:String): Future[Boolean]
   def retrieveObject(key: String): Future[Either[String,String]]
   def getGameStats:Future[List[String]]
+  def getGamesSummary: Future[String Either List[String]]
 }

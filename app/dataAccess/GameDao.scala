@@ -14,6 +14,7 @@ trait GameDaoInterface {
   def saveGame (game:Game): Future[Boolean]
   def retrieveGame (gameId:String): Future[Either[String,Game]]
   def getGameStats : Future[GameStats]
+  def getGamesSummary : Future [String Either List[Game]]
 }
 /**
   * Created by anton on 12/17/2016.
@@ -42,6 +43,14 @@ class GameDao @Inject()(storer:StoreApi)(implicit exec: ExecutionContext) extend
       val games = r.map(g=>Json.parse[Game](g))
       GameStats (games.count(_.status==GameInProgress), games.count(_.status==GameSettingUp))
     } )
+  }
+
+  def getGamesSummary : Future [String Either List[Game]] = {
+    storer.getGamesSummary.map {
+      case Right(gs) =>
+        Right(gs.map(g=>Json.parse[Game](g)))
+      case Left(e) => Left (e)
+    }
   }
 
 }

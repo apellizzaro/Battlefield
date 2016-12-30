@@ -8,7 +8,7 @@
  * Controller of the battleShipApp
  */
 angular.module('battleShipApp')
-  .controller('NewgameCtrl', function ($scope, newGameService) {
+  .controller('NewgameCtrl', function ($scope,gameService) {
     console.log('in the Newgame controller');
     $scope.createGame = function(){
     	console.log('======================');
@@ -20,7 +20,7 @@ angular.module('battleShipApp')
     	console.log("Ships of 1: " + $scope.game.nShip1);
     	console.log('======================');
 
-    	newGameService.crateNewGame( {
+    	gameService.crateNewGame( {
     	'gameName': $scope.game.name,
     	'gridSize' : $scope.game.gridSize,
     	'nShips4' :$scope.game.nShip4,

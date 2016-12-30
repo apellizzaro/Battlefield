@@ -1,3 +1,57 @@
 <div>
-   Select game and cick join
+    <br>
+    <table>
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td colspan="2">Game specification</td>
+                    </tr>
+                    <tr>
+                        <td>Game name </td>
+                        <td>{{gameName}} </td>
+                    </tr>
+                    <tr>
+                        <td>Grid size </td>
+                        <td>{{gridSize}} </td>
+                    </tr>
+                    <tr>
+                        <td>Number of palyers </td>
+                        <td>{{numberOfPlayers}} </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table>
+                <tr>
+                    <td colspan="2">Ships configuration</td>
+                </tr>
+                <tr>
+                    <td><b>Ship Size</b></td>
+                    <td><b>Number of ships</b></td>
+                </tr>
+                <tr ng-repeat=" g in gameConfig">
+                    <td>{{g.length}}</td>
+                    <td>{{g.quantity}}</td>
+                </tr>
+            </table>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <div>
+        Player Name:  <input type="text" class="form-control" name="playerName" id="playerName" placeholder="Player Name" ng-model="playerName" required />
+    </div>
+    <table>
+        <tr ng-repeat="r in grid track by $index" ng-init="rowIndex = $index">
+            <td ng-repeat="c in grid[rowIndex] track by $index"  ng-init="columnIndex = $index">
+                <div ng-click="cellClicked(rowIndex,columnIndex)">
+                    <b>-{{ grid[rowIndex][columnIndex] }}-</b>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <button class="button" ng-click="verify()">submit</button>
+
 </div>

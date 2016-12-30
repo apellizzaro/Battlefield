@@ -58,13 +58,26 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
     gameManager.getGameStats.map {gs=>
       Ok(Json.generate(gs))
     }
+  }
 
+  def gamesSummary = Action.async {
+    gameManager.getGamesSummary.map {
+      case Right (gs) => Ok (Json.generate(gs))
+      case Left (e) => InternalServerError(e)
+    }
   }
 
   def gameStatus  (gameId:String):Action[AnyContent] = Action.async {
     gameManager.getGameStatus (gameId) map {
       case Left(e) => NotFound(e)
       case Right(s) => Ok(Json.generate(s))
+    }
+  }
+
+  def gameDetails (gameId: String) = Action.async {
+    gameManager.getGame (gameId).map {
+      case Left(e) => NotFound(e)
+      case Right(g) => Ok(Json.generate(g))
     }
   }
 
