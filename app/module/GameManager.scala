@@ -22,7 +22,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
       case Left(s) => Left(s)
       case Right(g) =>
         val players = playerManager.setupOpponentsBoards(g.players,g.boardSize)
-        val newGame = Game (g.gameId,g.gameName,g.boardSize,g.shipsConfiguration,players,GameInProgress)
+        val newGame = Game (g.gameId,g.gameName,g.boardSize,g.ownerName, g.shipsConfiguration,players,GameInProgress)
         gameDataAccess.saveGame(newGame)
         Right(newGame)
     }
@@ -51,7 +51,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
 
   def getGamesSummary : Future[String Either List[GameSummary]] = {
     gameDataAccess.getGamesSummary.map {
-      case Right (gs) => Right(gs.map { g=> GameSummary(g.gameName,g.gameId,g.boardSize,g.status,g.players.length)})
+      case Right (gs) => Right(gs.map { g=> GameSummary(g.gameName,g.gameId,g.ownerName, g.boardSize,g.status,g.players.length)})
       case Left (e) => Left (e)
     }
   }
@@ -71,12 +71,12 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     //check for winner => if in all player's board all battleship are hit
     val won = opponentsPlayers.forall( o => !o.ownBoard.stillAlive)
 
-    (Game(game.gameId,game.gameName,game.boardSize,game.shipsConfiguration, (opponentsPlayers :+ player) ++ deadPlayers,if (won) GameEnded else game.status),
+    (Game(game.gameId,game.gameName,game.boardSize,game.ownerName, game.shipsConfiguration, (opponentsPlayers :+ player) ++ deadPlayers,if (won) GameEnded else game.status),
       opponents.map(t=> (t._1.name,t._2)).toMap)
   }
 
-  def newGame (gameName: String, boardSize: Int, initialSetup: GameSetup): Future [String Either Game] = {
-    GameValidator(gameName,boardSize,initialSetup) match {
+  def newGame (gameName: String, boardSize: Int, owner:String,initialSetup: GameSetup): Future [String Either Game] = {
+    GameValidator(gameName,boardSize,owner,initialSetup) match {
       case Right (g) => gameDataAccess.saveGame(g).map {
         case true => Right(g)
         case _ => Left ("error saving the game")
@@ -119,7 +119,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
         Player(kv._1, curPlayerBattleField, Map())
       }.toList
 
-      Game(game.gameId,game.gameName,game.boardSize,game.shipsConfiguration, game.players ++ playersSetup, game.status)
+      Game(game.gameId,game.gameName,game.boardSize,game.ownerName, game.shipsConfiguration, game.players ++ playersSetup, game.status)
 
     }
   }

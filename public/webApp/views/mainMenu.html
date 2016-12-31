@@ -1,16 +1,20 @@
 <div>
     <br>
     <br>
+    <label>Your Name:</label> <input type="text" class="form-control" name="playerName" id="playerName" placeholder="Player Name" ng-model="playerName" required />
+    <br>
     <div>
         Games in progress: {{inProgressGame}}<br>
         Games waiting for palyers: {{formingGames}}<br>
 
     </div>
 
+    <br>
     <div>
         <table>
             <tr>
                 <td>Name</td>
+                <td>Owner Name</td>
                 <td># Players</td>
                 <td>Grid Size</td>
                 <td>Status</td>
@@ -18,16 +22,21 @@
             </tr>
             <tr ng-repeat = "g in gamesStatus">
                 <td>{{g.name}}</td>
+                <td>{{g.ownerName}}</td>
                 <td>{{g.numberOfPlayers}}</td>
                 <td>{{g.gridSize}}</td>
                 <td>{{g.status}}</td>
                 <!--<td><button type="button" ng-click="{{'joinGame(&#146;' + g.id + '&#146;)'}}">Join</button></td>-->
-                <td><button type="button" ng-click="joinGame(g.id)">Join</button></td>
+                <td><button type="button" ng-click="joinGame(g.id)" ng-if="g.status=='GameSettingUp'">Join</button></td>
+                <td>
+                    <button type="button" ng-click="startGame(g.id)" ng-if="g.status=='GameSettingUp' && g.ownerName==playerName ">Start</button>
+                    <button type="button" ng-click="startGame(g.id)" ng-if="g.status!='GameSettingUp'">Play</button>
+                </td>
             </tr>
         </table>
     </div>
+    <br>
 
     <button  type="button" class="btn btn-success" ng-click="Navigate('newGame')">New game</button>
-    <button  type="button" class="btn btn-success" ng-click="Navigate('joinGame')">Join game</button>
     <button  type="button" class="btn btn-success" ng-click="Navigate('resumeGame')">Resume game</button>
 </div>

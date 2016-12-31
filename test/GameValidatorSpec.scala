@@ -8,7 +8,7 @@ class GameValidatorSpec extends PlaySpec {
 
   "A game validator" must {
     "not validate bc too many ships" in {
-      val gm = GameValidator ("name",5,GameSetup(BattleshipConfiguration(List(BattleshipModel(4,2),BattleshipModel(3,2),BattleshipModel(5,5))),Map()))
+      val gm = GameValidator ("name",5,"Antonio", GameSetup(BattleshipConfiguration(List(BattleshipModel(4,2),BattleshipModel(3,2),BattleshipModel(5,5))),Map()))
       val res = gm match {
         case Left (_) => true
         case _ => false
@@ -17,7 +17,7 @@ class GameValidatorSpec extends PlaySpec {
     }
 
     "not validate bc ships outside grid" in {
-      val gm = GameValidator ("name",5,GameSetup(BattleshipConfiguration(List(BattleshipModel(4,2),BattleshipModel(3,2),BattleshipModel(5,5))),Map()))
+      val gm = GameValidator ("name",5,"Antonio",GameSetup(BattleshipConfiguration(List(BattleshipModel(4,2),BattleshipModel(3,2),BattleshipModel(5,5))),Map()))
       val res = gm match {
         case Left (_) => true
         case _ => false
@@ -26,7 +26,7 @@ class GameValidatorSpec extends PlaySpec {
     }
 
     "Not validate for config not to spec" in {
-      val gm = GameValidator ("name",20,GameSetup(
+      val gm = GameValidator ("name",20,"Antonio", GameSetup(
         BattleshipConfiguration(
           List(BattleshipModel(2,2),
             BattleshipModel(3,2),
@@ -49,7 +49,7 @@ class GameValidatorSpec extends PlaySpec {
     }
 
     "validate" in {
-      val gm = GameValidator ("name",20,GameSetup(
+      val gm = GameValidator ("name",20,"Antonio",GameSetup(
         BattleshipConfiguration(
           List(BattleshipModel(2,2),
             BattleshipModel(3,2),

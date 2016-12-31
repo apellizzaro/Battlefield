@@ -1,0 +1,45 @@
+<div>
+    <br>
+    <br>
+    <label><b>{{playerName}}</b></label>
+    <br>
+    <div>
+        Games in progress: {{gameName}}<br>
+        Next turn: {{playerTurn}}<br>
+    </div>
+
+    <br>
+    <label>Opponent's boards</label>
+    <div>
+        <table>
+            <tr>
+                <td ng-repeat="c in opponents track by $index"  ng-init="playerIdx = $index">
+                    <table>
+                        <tr><td colspan="10">{{c}}</td></tr>
+                        <tr ng-repeat=" b in opponentsBoards[c] track by $index"   ng-init="gridRowIndex = $index">
+                            <td ng-repeat="col in opponentsBoards[c][gridRowIndex] track by $index"  ng-init="gridColIndex = $index">
+                                <div ng-click="ShotClicked(gridRowIndex,gridColIndex)">
+                                    {{opponentsBoards[c][gridRowIndex][gridColIndex]}}
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <label>click on a board to shoot</label>
+        <label>legend: *=Hit, O=Missed, X=sunk</label>
+        <div>
+            <label>My board</label>
+            <table>
+                <tr ng-repeat=" b in myBoard track by $index"   ng-init="gridRawIndex = $index">
+                    <td ng-repeat="c in myBoard[gridRawIndex] track by $index"  ng-init="gridColIndex = $index">
+                        {{myBoard[gridRawIndex][gridColIndex]}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br>
+</div>

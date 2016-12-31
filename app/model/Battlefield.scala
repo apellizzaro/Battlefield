@@ -29,8 +29,9 @@ object BattleFieldWithValidation {
 
 object BattleField {
   def apply(size: Int, ships: Seq[BattleShip]): BattleField = {
+    val allSpaces = ships.flatMap (_.allCells)
     val initialGrid: Grid = Grid(Array.tabulate(size, size)((x, y) => {
-      ships.find(s => occupySpace(s,Point2D(x, y))).map(_ => BattleShipSafe).getOrElse(EmptySea)
+      allSpaces.find(p=>p==Point2D(x,y)).map(_ => BattleShipSafe).getOrElse(EmptySea)
     }))
 
     BattleField(ships, initialGrid)

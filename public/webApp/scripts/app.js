@@ -30,6 +30,10 @@ angular
         templateUrl: 'webApp/views/joinGame.html',
         controller: 'joinGameCtrl'
       })
+      .when('/playGame', {
+        templateUrl: 'webApp/views/playGame.html',
+        controller: 'playGameCtrl'
+      })
       .when('/resumeGame', {
         templateUrl: 'webApp/views/resumeGame.html',
         controller: 'ResumeGameCtrl'

@@ -15,12 +15,12 @@ import scala.concurrent.duration._
 @Singleton
 class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManager)(implicit exec: ExecutionContext) extends Controller {
 
-  def newGame (name: String, boardsize:Int)= Action.async (parse.json) {
+  def newGame (name: String, boardsize:Int, owner:String)= Action.async (parse.json) {
     request=> {
       val bodyStr = request.body.toString()
       val initialSetup = Json.parse[GameSetup] (bodyStr)
 
-      gameManager.newGame(name,boardsize,initialSetup).map  {
+      gameManager.newGame(name,boardsize,owner,initialSetup).map  {
         case Right (g) => Ok(g.gameId)
         case Left (e) => BadRequest (e)
       }
@@ -77,7 +77,7 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
   def gameDetails (gameId: String) = Action.async {
     gameManager.getGame (gameId).map {
       case Left(e) => NotFound(e)
-      case Right(g) => Ok(Json.generate(g))
+      case Right(g) => Ok(Json.generate(Game (g.gameId,g.gameName,g.boardSize,g.ownerName,g.shipsConfiguration,List(),g.status)))
     }
   }
 

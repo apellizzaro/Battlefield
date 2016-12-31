@@ -69,7 +69,7 @@ angular.module('battleShipApp')
         }
 
         var playerConfig = {};
-        playerConfig[$scope.playerName]= ships;
+        playerConfig[currGame.PlayerName]= ships;
 
         //send ship config to server
         gameService.addPlayer ({'gameId': currGame.gameId, 'players': playerConfig}, function success(s) {

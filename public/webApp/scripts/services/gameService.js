@@ -30,7 +30,8 @@ angular.module('battleShipApp')
                                          method: 'PUT',
                                          url: '/api/v1/newGame',
                                          params: {'name':gameConfig.gameName,
-                                                   'boardsize':gameConfig.gridSize
+                                                   'boardsize':gameConfig.gridSize,
+                                                   'owner':gameConfig.ownerName
                                                    },
                                          data: {'shipsConfiguration':{'config':[
                                                        {'length': 4, 'quantity':gameConfig.nShips4},
@@ -51,13 +52,44 @@ angular.module('battleShipApp')
                                      }]
                     }
                   */
-                                                     $http({
-                                                           method: 'PUT',
-                                                           url: '/api/v1/game/'+playerConfig.gameId +'/players',
-                                                           data: playerConfig.players
-                                                         }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
-                                                  },
+                                 $http({
+                                       method: 'PUT',
+                                       url: '/api/v1/game/'+playerConfig.gameId +'/players',
+                                       data: playerConfig.players
+                                     }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
+                              },
 
+                   startGame: function (gameId, onSuccess, onError){
+                         $http({
+                               method: 'POST',
+                               url: '/api/v1/game/'+gameId +'/start'
+                             }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
+                   },
 
+                   getPlayerBoards: function (gameId, playerId, s, e){
+                        $http({
+                              method: 'GET',
+                              url: '/api/v1/game/'+ gameId +'/player/' + playerId + '/boards'
+                            }).then(function successCallback(response) {s(response.data)},
+                             function errorCallback(response) {e(response.data)} );
+                         },
+
+                   getNextPlayerTurn : function (gameId,s,e) {
+                       $http({
+                             method: 'GET',
+                             url: '/api/v1/game/'+ gameId +'/nextturn'
+                           }).then(function successCallback(response) {s(response.data)},
+                            function errorCallback(response) {e(response.data)} );
+                    },
+
+                   shoot: function (gameId,x,y, s, e) {
+                         $http({
+                             method: 'POST',
+                             url: '/api/v1/game/'+ gameId +'/shoot',
+                             data: {'x':x,'y':y}
+                           }).then(function successCallback(response) {s(response.data)},
+                            function errorCallback(response) {e(response.data)} );
+
+                   }
              };
   });

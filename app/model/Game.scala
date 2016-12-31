@@ -12,10 +12,10 @@ case class GameStatusResponse (status: String, configuration:BattleshipConfigura
 
 case class GameSetup (shipsConfiguration: BattleshipConfiguration, playersSetup:Map[String, List[BattleShip]])
 
-case class Game (gameId:String, gameName:String, boardSize:Int, shipsConfiguration: BattleshipConfiguration, players: Seq[Player], status:GameStatus )
+case class Game (gameId:String, gameName:String, boardSize:Int, ownerName:String, shipsConfiguration: BattleshipConfiguration, players: Seq[Player], status:GameStatus )
 
 object GameValidator extends PlayerValidator {
-  def apply(gameName: String,boardsize:Int, setup: GameSetup): String Either Game = {
+  def apply(gameName: String, boardsize:Int, owner:String, setup: GameSetup): String Either Game = {
     //are there enough spaces?
     val totalShipSpaces = setup.shipsConfiguration.config.foldLeft(0)((a, b) => a + b.length * b.quantity)
 
@@ -42,7 +42,7 @@ object GameValidator extends PlayerValidator {
           val playerRightSetup = playersSetup.map {
             case Right(ps) => ps
           }
-          Right(Game(java.util.UUID.randomUUID().toString, gameName, boardsize, setup.shipsConfiguration, playerRightSetup, GameSettingUp))
+          Right(Game(java.util.UUID.randomUUID().toString, gameName, boardsize,owner, setup.shipsConfiguration, playerRightSetup, GameSettingUp))
         }
       }
     }
@@ -50,13 +50,13 @@ object GameValidator extends PlayerValidator {
 }
 
 object  Game {
-  def apply(gameName: String, boardSize: Int,  gameSetup: GameSetup): Game = {
+  def apply(gameName: String, boardSize: Int,  owner:String, gameSetup: GameSetup): Game = {
     val playersSetup = gameSetup.playersSetup.map { kv =>
       val curPlayerBattleField = BattleField(boardSize, kv._2)
       Player(kv._1, curPlayerBattleField, Map())
     }.toSeq
 
-    Game(java.util.UUID.randomUUID().toString, gameName,boardSize, gameSetup.shipsConfiguration, playersSetup, GameSettingUp)
+    Game(java.util.UUID.randomUUID().toString, gameName,boardSize,owner, gameSetup.shipsConfiguration, playersSetup, GameSettingUp)
   }
 }
 
