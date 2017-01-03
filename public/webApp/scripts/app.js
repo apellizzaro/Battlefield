@@ -19,6 +19,10 @@ angular
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
+              templateUrl: 'webApp/views/login.html',
+              controller: 'loginCtrl'
+            })
+      .when('/mainMenu', {
               templateUrl: 'webApp/views/mainMenu.html',
               controller: 'MainMenuCtrl'
             })
@@ -41,4 +45,4 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  }).factory("currGame", function () { return {};});;
+  }).factory("userContext", function () { return {};});;

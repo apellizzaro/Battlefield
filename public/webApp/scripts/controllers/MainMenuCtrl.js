@@ -8,10 +8,10 @@
  * Controller of the battleShipApp
  */
 angular.module('battleShipApp')
-  .controller('MainMenuCtrl', function ($scope,$location,gameService,currGame) {
+  .controller('MainMenuCtrl', function ($scope,$location,gameService,userContext) {
     console.log('in the MainMenuCtrl controller');
-    if (currGame.PlayerName)
-        $scope.playerName = currGame.PlayerName;
+    if (userContext.PlayerName)
+        $scope.playerName = userContext.PlayerName;
 
     //initialize with some stats
     gameService.getGamesStatus ( function success (r){
@@ -24,13 +24,13 @@ angular.module('battleShipApp')
 
     $scope.joinGame = function (gameId) {
         console.log ("joining game:" + gameId);
-        currGame.gameId=gameId;
+        userContext.gameId=gameId;
         $scope.Navigate("joinGame");
     }
 
     $scope.startGame = function (gameId) {
-        currGame.gameId=gameId;
-        gameService.startGame (gameId, function s(d) {
+        userContext.gameId=gameId;
+        gameService.startGame (gameId, userContext.playerToken, function s(d) {
         console.log(d);
         $scope.Navigate ("playGame");},
             function err (e) {
@@ -39,12 +39,11 @@ angular.module('battleShipApp')
     }
 
     $scope.playGame = function (gameId) {
-        currGame.gameId=gameId;
+        userContext.gameId=gameId;
         $scope.Navigate ("playGame");
     }
 
     $scope.Navigate = function (page) {
-        currGame.PlayerName=$scope.playerName;
         $location.path(page)
     }
   });

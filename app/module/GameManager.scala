@@ -17,9 +17,10 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
 
   def whosTurnIsIt(game:Game):String = game.players.head.name
 
-  def startGame(gameId:String): ResultGameOperation = {
+  def startGame(gameId:String, user:User): ResultGameOperation = {
     retrieveGame(gameId).map {
       case Left(s) => Left(s)
+      case Right(g) if g.ownerName!=user.name => Left ("Unauthorized Use")
       case Right(g) =>
         val players = playerManager.setupOpponentsBoards(g.players,g.boardSize)
         val newGame = Game (g.gameId,g.gameName,g.boardSize,g.ownerName, g.shipsConfiguration,players,GameInProgress)
@@ -28,26 +29,16 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     }
   }
 
-  def shoot (gameId: String, point2D: Point2D): Future [String Either (Game,Map[String,ResultShooting])] = {
+  def shoot (gameId: String, user:User, point2D: Point2D): Future [String Either (Game,Map[String,ResultShooting])] = {
     retrieveGame(gameId).map {
       case Left(s) => Left(s)
+      case Right(g) if g.players.head.name != user.name => Left ("Not user turn")
       case Right(g) => val (game, results) = playTurn(g, point2D)
         gameDataAccess.saveGame(game)
         Right((game, results))
     }
   }
 
-  def getGameStatus (gameId:String): Future[ String  Either GameStatusResponse] = {
-    retrieveGame(gameId) map {
-      case Left(s) => Left (s)
-      case Right (g) =>
-        Right(GameStatusResponse(g.status.toString,g.shipsConfiguration, g.players.map(_.name),g.players.find(_.ownBoard.stillAlive).map(_.name).getOrElse("")))
-    }
-  }
-
-  def getGameStats : Future [GameStats] = {
-    gameDataAccess.getGameStats
-  }
 
   def getGamesSummary : Future[String Either List[GameSummary]] = {
     gameDataAccess.getGamesSummary.map {
@@ -119,7 +110,10 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
         Player(kv._1, curPlayerBattleField, Map())
       }.toList
 
-      Game(game.gameId,game.gameName,game.boardSize,game.ownerName, game.shipsConfiguration, game.players ++ playersSetup, game.status)
+      //if players already exists, replace it
+      val removedDuplicates = game.players.filterNot(p=>playersSetup.exists(_.name == p.name))
+
+      Game(game.gameId,game.gameName,game.boardSize,game.ownerName, game.shipsConfiguration, removedDuplicates ++ playersSetup, game.status)
 
     }
   }

@@ -1,7 +1,7 @@
 <div>
     <br>
     <br>
-    <label>Your Name:</label> <input type="text" class="form-control" name="playerName" id="playerName" placeholder="Player Name" ng-model="playerName" required />
+    <label>Player:</label>  <label>{{playerName}}</label>
     <br>
     <div>
         Games in progress: {{inProgressGame}}<br>
@@ -30,7 +30,7 @@
                 <td><button type="button" ng-click="joinGame(g.id)" ng-if="g.status=='GameSettingUp'">Join</button></td>
                 <td>
                     <button type="button" ng-click="startGame(g.id)" ng-if="g.status=='GameSettingUp' && g.ownerName==playerName ">Start</button>
-                    <button type="button" ng-click="startGame(g.id)" ng-if="g.status!='GameSettingUp'">Play</button>
+                    <button type="button" ng-click="playGame(g.id)" ng-if="g.status!='GameSettingUp'">Play</button>
                 </td>
             </tr>
         </table>

@@ -13,7 +13,6 @@ import scala.concurrent.{ExecutionContext, Future}
 trait GameDaoInterface {
   def saveGame (game:Game): Future[Boolean]
   def retrieveGame (gameId:String): Future[Either[String,Game]]
-  def getGameStats : Future[GameStats]
   def getGamesSummary : Future [String Either List[Game]]
 }
 /**
@@ -36,13 +35,6 @@ class GameDao @Inject()(storer:StoreApi)(implicit exec: ExecutionContext) extend
         }
         case Left(s) => Left(s)
     }
-  }
-
-  def getGameStats: Future[GameStats] = {
-    storer.getGameStats.map (r=> {
-      val games = r.map(g=>Json.parse[Game](g))
-      GameStats (games.count(_.status==GameInProgress), games.count(_.status==GameSettingUp))
-    } )
   }
 
   def getGamesSummary : Future [String Either List[Game]] = {

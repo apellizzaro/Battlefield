@@ -6,7 +6,6 @@ angular.module('battleShipApp')
 
         return {
                  getGameDetails : function(gameId, s,e){
-                    console.log ("gameService::getGameDetails:" + gameId);
                     $http({
                       method: 'GET',
                       url: '/api/v1/game/'+ gameId + '/details',
@@ -23,25 +22,25 @@ angular.module('battleShipApp')
                               },
 
                    crateNewGame : function(gameConfig, onSuccess,onError){
-                                   console.log('Inside crateNewGame');
-                                   console.log('======================');
 
-                                   $http({
-                                         method: 'PUT',
-                                         url: '/api/v1/newGame',
-                                         params: {'name':gameConfig.gameName,
-                                                   'boardsize':gameConfig.gridSize,
-                                                   'owner':gameConfig.ownerName
-                                                   },
-                                         data: {'shipsConfiguration':{'config':[
-                                                       {'length': 4, 'quantity':gameConfig.nShips4},
-                                                       {'length': 3, 'quantity':gameConfig.nShips3},
-                                                       {'length': 2, 'quantity':gameConfig.nShips2},
-                                                       {'length': 1, 'quantity':gameConfig.nShips1},
-                                                   ]},playersSetup:{}
-                                               }
-                                       }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
-                                },
+                           $http({
+                                 method: 'PUT',
+                                 url: '/api/v1/newGame',
+                                 params: {'name':gameConfig.gameName,
+                                           'boardsize':gameConfig.gridSize
+                                           },
+                                 data: {'shipsConfiguration':{'config':[
+                                               {'length': 4, 'quantity':gameConfig.nShips4},
+                                               {'length': 3, 'quantity':gameConfig.nShips3},
+                                               {'length': 2, 'quantity':gameConfig.nShips2},
+                                               {'length': 1, 'quantity':gameConfig.nShips1},
+                                           ]},playersSetup:{}
+                                       },
+                                 headers: {
+                                     'x-battlefield-userToken': gameConfig.playerToken
+                                    }
+                               }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
+                        },
 
                   addPlayer : function(playerConfig, onSuccess,onError){
                                                      console.log('Inside addPlayer');
@@ -52,24 +51,30 @@ angular.module('battleShipApp')
                                      }]
                     }
                   */
-                                 $http({
-                                       method: 'PUT',
-                                       url: '/api/v1/game/'+playerConfig.gameId +'/players',
-                                       data: playerConfig.players
-                                     }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
-                              },
-
-                   startGame: function (gameId, onSuccess, onError){
                          $http({
-                               method: 'POST',
-                               url: '/api/v1/game/'+gameId +'/start'
+                               method: 'PUT',
+                               url: '/api/v1/game/'+playerConfig.gameId +'/players',
+                               data: playerConfig.players
+                             }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
+                      },
+
+                   startGame: function (gameId, userToken, onSuccess, onError){
+                         $http({
+                             method: 'POST',
+                             url: '/api/v1/game/'+gameId +'/start',
+                             headers: {
+                                 'x-battlefield-userToken': userToken
+                                }
                              }).then(function s(r){onSuccess(r.data);}, function e(r) {onError(r.data);});
                    },
 
-                   getPlayerBoards: function (gameId, playerId, s, e){
+                   getPlayerBoards: function (gameId, playerToken, s, e){
                         $http({
                               method: 'GET',
-                              url: '/api/v1/game/'+ gameId +'/player/' + playerId + '/boards'
+                              url: '/api/v1/game/'+ gameId  + '/boards',
+                              headers: {
+                               'x-battlefield-userToken': playerToken
+                              }
                             }).then(function successCallback(response) {s(response.data)},
                              function errorCallback(response) {e(response.data)} );
                          },
@@ -82,14 +87,24 @@ angular.module('battleShipApp')
                             function errorCallback(response) {e(response.data)} );
                     },
 
-                   shoot: function (gameId,x,y, s, e) {
+                   shoot: function (gameId,playerToken,x,y, s, e) {
                          $http({
                              method: 'POST',
                              url: '/api/v1/game/'+ gameId +'/shoot',
-                             data: {'x':x,'y':y}
+                             data: {'x':x,'y':y},
+                             headers: {
+                               'x-battlefield-userToken': playerToken
+                              }
                            }).then(function successCallback(response) {s(response.data)},
                             function errorCallback(response) {e(response.data)} );
-
+                   },
+                   doLogin: function (playerName, s,e) {
+                        $http({
+                             method: 'POST',
+                             url: '/api/v1/user/login',
+                             data: {'name' : playerName}
+                           }).then(function successCallback(response) {s(response.data)},
+                            function errorCallback(response) {e(response.data)} );
                    }
              };
   });

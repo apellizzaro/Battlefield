@@ -2,17 +2,18 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-PUT  /api/v1/newGame                                 controllers.AsyncController.newGame(name:String,boardsize:Int,owner:String)
-PUT  /api/v1/game/:gameId/players                    controllers.AsyncController.addPlayers(gameId:String)
-POST /api/v1/game/:gameId/start                      controllers.AsyncController.startGame(gameId:String)
-GET  /api/v1/game/:gameId/status                     controllers.AsyncController.gameStatus(gameId:String)
-GET  /api/v1/game/:gameId/player/:playerId/boards    controllers.AsyncController.getPlayerBoards(gameId:String,playerId:String)
+PUT  /api/v1/newGame                                controllers.AsyncController.newGame(name:String,boardsize:Int)
+PUT  /api/v1/game/:gameId/players                   controllers.AsyncController.addPlayers(gameId:String)
+POST /api/v1/game/:gameId/start                     controllers.AsyncController.startGame(gameId:String)
+GET  /api/v1/game/:gameId/boards                    controllers.AsyncController.getPlayerBoards(gameId:String)
 POST /api/v1/game/:gameId/shoot                     controllers.AsyncController.shoot(gameId)
-GET  /api/v1/gameStats                              controllers.AsyncController.gameStats
 GET  /api/v1/gamesSummary                           controllers.AsyncController.gamesSummary
 GET /api/v1/game/:gameId/details                    controllers.AsyncController.gameDetails(gameId: String)
 GET /api/v1/game/:gameId/nextturn                   controllers.AsyncController.getNextPlayerTurn(gameId: String)
 
+POST /api/v1/user/login                             controllers.UserController.login
+
 GET /                                               controllers.UIController.mainPage
 GET /NewGame.html                                controllers.UIController.newGamePage
 GET /webApp/*file                                 controllers.Assets.at(path="/public/webApp", file)
+

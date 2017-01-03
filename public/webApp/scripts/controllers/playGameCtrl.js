@@ -8,17 +8,23 @@
  * Controller of the battleShipApp
  */
 angular.module('battleShipApp')
-  .controller('playGameCtrl', function ($scope,$location,gameService,currGame) {
+  .controller('playGameCtrl', function ($scope,$location,gameService,userContext) {
     console.log('in the playGameCtrl controller');
 
-    $scope.playerName = currGame.PlayerName;
+    $scope.playerName = userContext.PlayerName;
 
-    gameService.getNextPlayerTurn(currGame.gameId,
-        function success(p){$scope.playerTurn=p;},
-        function err(e){console.log(e);}
-    );
 
-    gameService.getPlayerBoards (currGame.gameId, currGame.PlayerName,
+
+    var updatePlayerTurn = function () {
+        gameService.getNextPlayerTurn(userContext.gameId,
+                    function success(p){$scope.playerTurn=p;},
+                    function err(e){console.log(e);}
+                );
+    }
+
+    updatePlayerTurn();
+
+    gameService.getPlayerBoards (userContext.gameId, userContext.playerToken,
         function (s) {
             var mySrvBoard = s.ownBoard.grid.g;
             var boardSize = mySrvBoard.length;
@@ -62,15 +68,16 @@ angular.module('battleShipApp')
         function err(e){console.log(e);});
 
        $scope.ShotClicked = function(x,y) {
-            gameService.shoot(currGame.gameId,x,y, function(s) {
-                console.log(s);
+            gameService.shoot(userContext.gameId,userContext.playerToken, x,y, function(s) {
+                $scope.messageText = s;
                 updateOpponentsBoards();
+                updatePlayerTurn();
                 },
              function(e){console.log(e);})
            };
 
        var updateOpponentsBoards = function () {
-            gameService.getPlayerBoards (currGame.gameId, currGame.PlayerName,
+            gameService.getPlayerBoards (userContext.gameId, userContext.playerToken,
             function (s) {
 
               var boardSize = s.ownBoard.grid.g.length;
@@ -96,6 +103,7 @@ angular.module('battleShipApp')
               });
               $scope.opponents=opponents;
             },
-            function err(e){console.log(e);});
+            function err(e){console.log(e);
+            $scope.errorMessageText = e;});
        }
 });

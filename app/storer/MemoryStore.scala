@@ -19,11 +19,7 @@ class MemoryStore @Inject() (implicit exec: ExecutionContext) extends StoreApi {
   }
 
   def retrieveObject(key: String): Future[Either[String,String]]= {
-    gamesStore.get(key).map(r=>Future(Right(r))).getOrElse (Future(Left("Game not found")))
-  }
-
-  def getGameStats : Future[List[String]] = {
-    Future (gamesStore.filter( kv=>kv._2.contains("GameSettingUp") || kv._2.contains("GameInProgress")).values.toList)
+    gamesStore.get(key).map(r=>Future(Right(r))).getOrElse (Future(Left("Object not found")))
   }
 
   def getGamesSummary: Future[String Either List[String]] = {

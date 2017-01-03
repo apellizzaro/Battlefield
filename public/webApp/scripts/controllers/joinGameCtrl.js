@@ -8,12 +8,12 @@
  * Controller of the battleShipApp
  */
 angular.module('battleShipApp')
-  .controller('joinGameCtrl', function ($scope,$location,gameService,currGame) {
+  .controller('joinGameCtrl', function ($scope,$location,gameService,userContext) {
     console.log('in the joinGameCtrl controller');
 
-    console.log ("gameId: " + currGame.gameId);
+    console.log ("gameId: " + userContext.gameId);
 
-    gameService.getGameDetails(currGame.gameId,function success(game) {
+    gameService.getGameDetails(userContext.gameId,function success(game) {
         console.log (game.gameName);
 
         $scope.gameName = game.gameName;
@@ -34,7 +34,7 @@ angular.module('battleShipApp')
         console.log (e);});
 
 
-    $scope.Navigate = function (page) {
+    var Navigate = function (page) {
         $location.path(page)
     }
 
@@ -69,13 +69,14 @@ angular.module('battleShipApp')
         }
 
         var playerConfig = {};
-        playerConfig[currGame.PlayerName]= ships;
+        playerConfig[userContext.PlayerName]= ships;
 
         //send ship config to server
-        gameService.addPlayer ({'gameId': currGame.gameId, 'players': playerConfig}, function success(s) {
-            console.log ("yeah!");},
+        gameService.addPlayer ({'gameId': userContext.gameId, 'players': playerConfig}, function success(s) {
+            $scope.serverMessage="Configuration set succesfully";
+            Navigate("mainMenu")},
         function err (e) {
-            console.log(e);});
+            $scope.serverMessage=e;});
     }
 
     var collectShip = function (grid, i,j) {
