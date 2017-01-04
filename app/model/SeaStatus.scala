@@ -12,6 +12,7 @@ case object EmptySea extends SeaStatus
 case object MissedShot extends SeaStatus
 case object BattleShipSafe extends SeaStatus
 case object BattleShipHit extends SeaStatus
+case object BattleShipSunk extends SeaStatus
 
 case object SeaStatusSerializer extends CustomSerializer[SeaStatus](format => (
   {
@@ -20,6 +21,7 @@ case object SeaStatusSerializer extends CustomSerializer[SeaStatus](format => (
       case "MissedShot" => MissedShot
       case "BattleShipSafe" => BattleShipSafe
       case "BattleShipHit" => BattleShipHit
+      case "BattleShipSunk" => BattleShipSunk
       case _ => EmptySea
     }
     case JNull => null

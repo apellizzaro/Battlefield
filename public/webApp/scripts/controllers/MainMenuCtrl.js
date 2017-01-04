@@ -12,6 +12,11 @@ angular.module('battleShipApp')
     console.log('in the MainMenuCtrl controller');
     if (userContext.PlayerName)
         $scope.playerName = userContext.PlayerName;
+    else {
+        userContext.PlayerName = window.localStorage.getItem("contextPlayerName");
+        userContext.playerToken = window.localStorage.getItem("contextPlayerToken");
+        $scope.playerName = userContext.PlayerName;
+    }
 
     //initialize with some stats
     gameService.getGamesStatus ( function success (r){
@@ -25,11 +30,13 @@ angular.module('battleShipApp')
     $scope.joinGame = function (gameId) {
         console.log ("joining game:" + gameId);
         userContext.gameId=gameId;
+        window.localStorage.setItem ("contextGameId",gameId);
         $scope.Navigate("joinGame");
     }
 
     $scope.startGame = function (gameId) {
         userContext.gameId=gameId;
+        window.localStorage.setItem ("contextGameId",gameId);
         gameService.startGame (gameId, userContext.playerToken, function s(d) {
         console.log(d);
         $scope.Navigate ("playGame");},
@@ -40,6 +47,7 @@ angular.module('battleShipApp')
 
     $scope.playGame = function (gameId) {
         userContext.gameId=gameId;
+        window.localStorage.setItem ("contextGameId",gameId);
         $scope.Navigate ("playGame");
     }
 

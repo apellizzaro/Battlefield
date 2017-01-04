@@ -12,6 +12,8 @@ angular.module('battleShipApp')
         gameService.doLogin(playerName, function (d) {
             userContext.PlayerName = playerName;
             userContext.playerToken = d;
+            window.localStorage.setItem("contextPlayerName", playerName);
+            window.localStorage.setItem("contextPlayerToken", d);
             $location.path("mainMenu");
         }, function (e) {
             console.log(e);

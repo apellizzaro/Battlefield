@@ -9,21 +9,30 @@ import model._
   */
 class BattleFieldManger @Inject () () {
 
-  def receiveShot (battleField:BattleField, shot: Point2D): (BattleField,ResultShooting) = {
-    val boardSize = battleField.grid.g.length
+  def receiveShot (battleField:BattleField, shot: Point2D): (BattleField, ResultShooting, Seq[Point2D]) = {
+    val boardSize = battleField.grid.size
+    val sunkenPoints = if (battleField.grid(shot) == BattleShipSafe && checkSunken(battleField,shot)) {
+      battleField.ships.find(s => s.allCells.contains(shot)).map(_.allCells).getOrElse(List())
+    }
+    else List()
+
     val newGrid:Grid = Grid(Array.tabulate(boardSize, boardSize)((x, y) => {
       if (x != shot.x || y != shot.y)
         battleField.grid(x,y)
       else if (battleField.grid(shot) == EmptySea)
         MissedShot
+      else if (sunkenPoints.contains(Point2D(x,y)))
+        BattleShipSunk
       else if (battleField.grid(shot) == BattleShipSafe)
         BattleShipHit
       else
         battleField.grid(shot)
     }))
 
+    val returBattleField = BattleField(battleField.ships, newGrid)
+
     //check if we lost:
-    val weLost = !battleField.stillAlive
+    val weLost = !returBattleField.stillAlive
 
     val resultShoot: ResultShooting = if (weLost) AllSunken
     else
@@ -35,50 +44,36 @@ class BattleFieldManger @Inject () () {
         case _ => Missed
       }
 
-    (BattleField(battleField.ships, newGrid), resultShoot)
+    (returBattleField, resultShoot,sunkenPoints)
   }
 
   def checkSunken (battleField:BattleField,point2D: Point2D):Boolean = {
-
-    def visitPoint (p:Point2D, alreadyVisited:Seq[Point2D]): Option[(Point2D,SeaStatus)] = {
-      if (p.x>=0 && p.y>=0  && p.x < battleField.grid.g.length && p.y< battleField.grid.g.length && !alreadyVisited.contains(p)) {
-        Some((p, battleField.grid(p.x, p.y)))
-      }
-      else
-        None
-    }
-
-    def getShipStatus (pp: Point2D, acc: Seq[(Point2D,SeaStatus)], alreadyVisited:Seq[Point2D]): Seq[(Point2D,SeaStatus)] = {
-      val pointsVisited = for (dx <- Range(-1,2);
-                              dy <- Range(-1,2))
-        yield {
-          visitPoint(Point2D(pp.x+dx,pp.y+dy),alreadyVisited)
-        }
-
-      if (pointsVisited.forall(vp => vp.isEmpty ||  vp.get._2==EmptySea || vp.get._2==MissedShot))
-        acc
-      else {
-        val pointsOfShip = pointsVisited.filter(vp => vp.isDefined && vp.get._2!=EmptySea && vp.get._2!=MissedShot).map(_.get)
-        pointsOfShip.flatMap(p => getShipStatus(p._1, acc :+ p, alreadyVisited ++ pointsVisited.filter(_.isDefined).map(_.get._1)))
-      }
-    }
-
-    val shipStatus = getShipStatus(point2D,List((point2D,BattleShipHit)), List(point2D))
-
-    shipStatus.forall(_._2 == BattleShipHit)
+    battleField.ships.find(s => s.allCells.contains(point2D)). //find the ship that was hit
+      exists(ac => {val allMycells  = ac.allCells
+      allMycells.filterNot(_==point2D).forall( c => {
+        val gridValue = battleField.grid(c.x,c.y)
+        gridValue==BattleShipHit
+      })
+    })
   }
 
-  def newBattleFiledAfterShooting (battleField: BattleField, shot: Point2D, shotRes: ResultShooting) : BattleField = {
+  def newBattleFiledAfterShooting (battleField: BattleField, shot: Point2D, shotRes: ResultShooting, sunkenPoints: Seq[Point2D]) : BattleField = {
 
-    val gridSize =battleField.grid.g.length
-    val updatedGrid:Grid = Grid(Array.tabulate(gridSize,gridSize)( (x,y)=> if(Point2D(x,y)==shot) mapRestoSeaStatus(shotRes) else battleField.grid(x,y)))
+    val gridSize =battleField.grid.size
+    val updatedGrid:Grid = Grid(Array.tabulate(gridSize,gridSize)( (x,y)=>
+      if (shotRes==Sunk && sunkenPoints.contains(Point2D(x,y)))
+        BattleShipSunk
+      else if(Point2D(x,y)==shot)
+        mapRestoSeaStatus(shotRes)
+      else
+        battleField.grid(x,y)))
 
     BattleField (battleField.ships,updatedGrid)
   }
 
   def mapRestoSeaStatus (res:ResultShooting): SeaStatus = {
     res match {
-      case Sunk => BattleShipHit
+      case Sunk => BattleShipSunk
       case AlreadyTaken => BattleShipHit
       case Hit => BattleShipHit
       case _ => MissedShot

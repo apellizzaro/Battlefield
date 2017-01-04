@@ -8,8 +8,12 @@
  * Controller of the battleShipApp
  */
 angular.module('battleShipApp')
-  .controller('NewgameCtrl', function ($scope,gameService,userContext) {
-    console.log('in the Newgame controller');
+  .controller('NewgameCtrl', function ($scope,$location, gameService, userContext) {
+
+    if (!userContext.PlayerName ){
+        $location.path("login");
+    }
+
     $scope.createGame = function(){
     	console.log('======================');
     	console.log("game name: " + $scope.game.name);
@@ -28,7 +32,8 @@ angular.module('battleShipApp')
     	'nShips3' :$scope.game.nShip3,
     	'nShips2' :$scope.game.nShip2,
     	'nShips1' :$scope.game.nShip1},
-    	                    function(s) {$scope.newGameId=s},
+    	                    function(s) {$scope.newGameId=s;
+    	                    $location.path ("mainMenu");},
     	                    function (e) {$scope.newGameId=e});
     };
   });

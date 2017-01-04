@@ -13,20 +13,25 @@ class PlayerManger @Inject() (battleFieldManger: BattleFieldManger){
   def sendShotToPlayers(shooter: Player, shot: Point2D, opponents: Seq[Player]): (Player,Seq[(Player,ResultShooting)]) = {
 
     //send shot to opponents, gather result
-    val newOpponentsResult = opponents.map (p=>{
+    val newOpponentsResult = opponents.map (p => {
       val bfWithRes = battleFieldManger.receiveShot(p.ownBoard,shot)
-      (Player(p.name,bfWithRes._1,p.opponentsBoards),bfWithRes._2)
+      (Player(p.name,bfWithRes._1, p.opponentsBoards), bfWithRes._2,bfWithRes._3)
       })
 
     //update shooter opponents' Board
     val mapOfOpponents = newOpponentsResult.map( pr=> (pr._1.name,pr._2)).toMap
 
     val newOpponentsBattleFields = shooter.opponentsBoards.map(kv => {
-      mapOfOpponents.get(kv._1).map (r => (kv._1,battleFieldManger.newBattleFiledAfterShooting(kv._2,shot,r)))
-    }).filter(_.isDefined).map(_.get).toList.toMap
+      mapOfOpponents.get(kv._1). //find the borad for that player (kv._1 is the player name
+        map(r => (kv._1, //map it to a Tuple2 of playerName, Battlefield update with the result of shooting
+        battleFieldManger.newBattleFiledAfterShooting(kv._2, //existing battlefield
+          shot, r, //shot, Result shooting
+          newOpponentsResult.find(_._1.name == kv._1).map(_._3).getOrElse(List()) //find if a ship got sunked, we need to update all the points
+        )))
+      }).filter(_.isDefined).map(_.get).toList.toMap
 
     (Player(shooter.name,shooter.ownBoard,newOpponentsBattleFields),
-      newOpponentsResult)
+      newOpponentsResult.map( rs=>(rs._1,rs._2) ))
   }
 
   def  setupOpponentsBoards(players:Seq[Player],boardSize:Int):Seq[Player]={
