@@ -54,7 +54,8 @@ class AsyncController @Inject()(actorSystem: ActorSystem, gameManager:GameManage
 
   def getNextPlayerTurn(gameId:String)= Action.async {
     gameManager.getNextPlayerTurn (gameId).map {
-      op => op.map(p => Ok(p.name)).getOrElse(NotFound("Player not found"))
+      case Right(p) => Ok(p.name)
+      case Left(e) => NotFound(e)
     }
   }
 

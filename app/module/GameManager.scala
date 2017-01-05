@@ -33,6 +33,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     retrieveGame(gameId).map {
       case Left(s) => Left(s)
       case Right(g) if g.players.head.name != user.name => Left ("Not user turn")
+      case Right(g) if g.status==GameEnded => Left ("Game Ended," + g.players.find(p=>p.ownBoard.stillAlive).map(_.name).getOrElse("Unknown") + " is the winner")
       case Right(g) => val (game, results) = playTurn(g, point2D)
         gameDataAccess.saveGame(game)
         Right((game, results))
@@ -76,11 +77,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     }
   }
 
-  def getNextPlayerTurn (gameId:String):Future[Option[Player]] = {
+  def getNextPlayerTurn (gameId:String):Future[String Either Player] = {
     retrieveGame(gameId).map {
-      case Left(e) => None
-      case Right(g) if g.status != GameInProgress => None
-      case Right(g) => g.players.find(_.ownBoard.stillAlive)
+      case Left(e) => Left(e)
+      case Right(g) if g.status == GameEnded => Left("Game has ended!")
+      case Right(g) => Right(g.players.find(_.ownBoard.stillAlive).get)
     }
   }
 

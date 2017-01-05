@@ -151,9 +151,11 @@ angular.module('battleShipApp')
                              if (mySrvBoard[i][j]=='EmptySea')
                                  $scope.myBoard [i][j]='-.-';
                              else if (mySrvBoard[i][j]=='BattleShipSafe')
-                                  $scope.myBoard [i][j]='-o-';
+                                 $scope.myBoard [i][j]='-o-';
                              else if (mySrvBoard[i][j]=='BattleShipHit' || mySrvBoard[i][j]=='BattleShipSunk')
-                                   $scope.myBoard [i][j]='X';
+                                 $scope.myBoard [i][j]='X';
+                             else if (mySrvBoard[i][j]=='MissedShot')
+                                $scope.myBoard [i][j]='~';
                          };
                  };
                 },function err(e){console.log(e);
