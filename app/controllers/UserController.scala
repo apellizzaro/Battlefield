@@ -11,11 +11,14 @@ import play.api.mvc._
 import scala.concurrent.ExecutionContext
 
 /**
-  * Created by apellizz on 1/1/17.
+  * Simulates a user login controlelr
   */
 @Singleton
 class UserController @Inject()(actorSystem: ActorSystem, userManager:UserManager)(implicit exec: ExecutionContext) extends Controller {
 
+  /*
+  * Performs a pretend login
+  * Body f the request is Json with the user information*/
   def login = Action.async(parse.json) { request => {
       val bodyStr = request.body.toString()
       val user = Json.parse[User](bodyStr)

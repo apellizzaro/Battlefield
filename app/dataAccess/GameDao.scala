@@ -16,7 +16,7 @@ trait GameDaoInterface {
   def getGamesSummary : Future [String Either List[Game]]
 }
 /**
-  * Created by anton on 12/17/2016.
+  * DAO for Games. Games are store in Json format
   */
 @Singleton
 class GameDao @Inject()(storer:StoreApi)(implicit exec: ExecutionContext) extends GameDaoInterface{

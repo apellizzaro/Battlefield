@@ -5,7 +5,7 @@ import com.google.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
-  * Created by anton on 12/17/2016.
+  * Mimic a phisical db to store the games. In this case it uses a concurrent TrieMap, it could be a Dynamo table or any other store
   */
 class MemoryStore @Inject() (implicit exec: ExecutionContext) extends StoreApi {
 

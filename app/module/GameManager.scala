@@ -8,7 +8,7 @@ import model._
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
-  * Created by anton on 12/16/2016.
+  * Manages a game
   */
 
 class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDaoInterface) (implicit exec: ExecutionContext) extends PlayerValidator {
@@ -17,10 +17,13 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
 
   def whosTurnIsIt(game:Game):String = game.players.head.name
 
+  //Set the status of a game as InProgress, only the player who created the game can start it
+  //At this stage the players' opponents' board get initialized
+  //Returns a new Game
   def startGame(gameId:String, user:User): ResultGameOperation = {
     retrieveGame(gameId).map {
       case Left(s) => Left(s)
-      case Right(g) if g.ownerName!=user.name => Left ("Unauthorized Use")
+      case Right(g) if g.ownerName!=user.name => Left ("Unauthorized User")
       case Right(g) =>
         val players = playerManager.setupOpponentsBoards(g.players,g.boardSize)
         val newGame = Game (g.gameId,g.gameName,g.boardSize,g.ownerName, g.shipsConfiguration,players,GameInProgress)
@@ -29,6 +32,11 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     }
   }
 
+  /*
+    Perfomer a shoot from a player.
+    Checks that is the user's turn and that the game is not ended
+    Returns left error or Right a tuple of new Gam and the result of the shooting, mapped with user name
+   */
   def shoot (gameId: String, user:User, point2D: Point2D): Future [String Either (Game,Map[String,ResultShooting])] = {
     retrieveGame(gameId).map {
       case Left(s) => Left(s)
@@ -52,17 +60,26 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     gameDataAccess.retrieveGame(gameId)
   }
 
+  //plays a tunr on hte game, returns a new Game and the result of the shooting
   def playTurn(game:Game, shot:Point2D): (Game, Map [String, ResultShooting]) = {
 
+    //Partition the list of players to exclude the players that already lost
     val (alivePlayers, deadPlayers) = game.players.partition (_.ownBoard.stillAlive)
 
+    //The player in the head ot Players is the one whose turn is to shoot
+    //ask the player manager to send the shot for that player.
+    // this will return a new Player with the updated boards and the new opponents
     val (player, opponents) = playerManager.sendShotToPlayers(alivePlayers.head,shot,alivePlayers.tail)
 
+    //get only the opponents players
     val opponentsPlayers = opponents.map(_._1)
 
     //check for winner => if in all player's board all battleship are hit
     val won = opponentsPlayers.forall( o => !o.ownBoard.stillAlive)
 
+    //create a new Game with the new status
+    //notice that the player who just shoot will go to the end of the list of players,
+    //the player's turn is the one in front of the list
     (Game(game.gameId,game.gameName,game.boardSize,game.ownerName, game.shipsConfiguration, (opponentsPlayers :+ player) ++ deadPlayers,if (won) GameEnded else game.status),
       opponents.map(t=> (t._1.name,t._2)).toMap)
   }
@@ -85,6 +102,7 @@ class GameManager @Inject() (playerManager: PlayerManger, gameDataAccess: GameDa
     }
   }
 
+  //Adds a player to the game, while the game is 'seeting up'
   def addPlayers (gameId:String, playerSetup:Map[String,Seq[BattleShip]]):ResultGameOperation = {
     retrieveGame(gameId).map {
       case Left(s) => {

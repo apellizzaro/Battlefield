@@ -39,4 +39,5 @@ trait PlayerValidator {
   }
 }
 
+/*A Player represented as his name, his player board and the opponets' boards*/
 case class Player  (name: String, ownBoard: BattleField, opponentsBoards:Map[String, BattleField]  )

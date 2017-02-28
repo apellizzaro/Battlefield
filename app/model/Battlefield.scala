@@ -8,8 +8,12 @@ import org.json4s.{CustomSerializer, DefaultFormats, Formats}
   */
 
 
+/*
+*Represent a Player game set: his own Battelfield, and the battlefields of his opponents, mapped with their name*/
 case class playerBoardResult (ownBoard:BattleField, opponentsBoards: Map[String, BattleField])
 
+/*
+* Represents a player's battlefield: a list of Battleships, and a grid, representing the "sea"*/
 case class BattleField (ships: Seq[BattleShip], grid:Grid) {
   def stillAlive:Boolean = grid.g.exists(_.contains(BattleShipSafe))
 }

@@ -9,8 +9,9 @@ import storer.StoreApi
 
 import scala.concurrent.{ExecutionContext, Future}
 /**
-  * Created by apellizz on 1/1/17.
+  * DAO for user information
   */
+
 @ImplementedBy(classOf[UserDao])
 trait UserDaoInterface {
   def login (user: User) : Future [String Either String]
